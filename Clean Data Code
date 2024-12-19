@@ -1,0 +1,120 @@
+Here's the full code to clean the data. It took me 3 days on this. I'll write explain in detail in another file
+
+import pandas as pd
+import ast
+# Define file paths
+file1 = "trump.csv"
+file2 = "harris.csv"
+
+# Read both CSV files into DataFrames, specifying the date columns to parse
+df1 = pd.read_csv(file1, encoding='utf-8', parse_dates=['ad_creation_time', 'ad_delivery_start_time', 'ad_delivery_stop_time'])
+df2 = pd.read_csv(file2, encoding='utf-8', parse_dates=['ad_creation_time', 'ad_delivery_start_time', 'ad_delivery_stop_time'])
+
+# Combine the DataFrames after cleaning
+combined_df = pd.concat([df1, df2], ignore_index=True)
+
+# Remove unnecessary columns
+combined_df = combined_df.drop(columns=['languages', 'publisher_platforms', 'currency'])
+df = combined_df
+
+# Function to extract and process `lower_bound` values
+def process_column(column):
+    # Extract lower and upper bounds
+    lower = column.str.extract(r"lower_bound: (\d+)").astype(float)
+    upper = column.str.extract(r"upper_bound: (\d+)").astype(float)
+
+    # Replace lower_bound = 0 with (upper_bound - lower_bound) / 2
+    lower.loc[lower[0] == 0] = (upper - lower) / 2
+
+    return lower[0]
+
+
+# Process the relevant columns
+df['spend'] = process_column(df['spend'])
+df['impressions'] = process_column(df['impressions'])
+df['estimated_audience_size'] = process_column(df['estimated_audience_size'])
+
+
+# Function to process `delivery_by_region` column
+def process_delivery_by_region(value):
+    if pd.isna(value):  # Handle null values
+        return None
+
+    try:
+        # Convert the JSON-like string into a list of dictionaries
+        regions = ast.literal_eval(f"[{value}]")
+    except (ValueError, SyntaxError):
+        return "Invalid Format"
+
+    # If there is only one region and percentage is 1
+    if len(regions) == 1 and regions[0].get("percentage") == 1:
+        return regions[0]["region"]
+
+    # If there are multiple regions
+    if len(regions) > 1:
+        # Filter regions with percentage > 0.9
+        high_percentage_regions = [r["region"] for r in regions if r["percentage"] > 0.9]
+        if high_percentage_regions:
+            return ", ".join(high_percentage_regions)  # Combine regions into a single string
+        else:
+            return "Many Regions"
+
+    # Fallback
+    return "Unknown Format"
+
+
+# Apply the function to the `delivery_by_region` column
+df['delivery_by_region'] = df['delivery_by_region'].apply(process_delivery_by_region)
+
+# Move the demographic_distribution column to the last position
+demographic_col = df.pop('demographic_distribution')
+df['demographic_distribution'] = demographic_col
+
+
+# Function to process the demographic_distribution column
+def process_demographic_distribution(data):
+    if pd.isna(data):  # Handle NaN
+        return {}
+
+    # Parse the JSON-like string into a Python list of dictionaries
+    try:
+        records = ast.literal_eval(f"[{data}]")
+    except Exception as e:
+        print(f"Error parsing row: {data}")
+        return {}
+
+    # Filter out entries with 'unknown' age or gender
+    filtered = [
+        r for r in records
+        if r['age'] != 'unknown' and r['gender'] != 'unknown'
+    ]
+
+    # Create a dictionary with demographic keys and percentages
+    demographic_dict = {
+        f"{r['age']} ({r['gender']})": r['percentage']
+        for r in filtered
+    }
+    return demographic_dict
+
+
+# Apply the processing function
+df_demographics = df['demographic_distribution'].apply(process_demographic_distribution)
+
+# Create new columns for each demographic group
+all_keys = set()
+df_demographics.apply(all_keys.update)  # Collect all unique keys
+all_keys = sorted(all_keys)  # Sort the keys for consistency
+
+# Initialize new columns with 0.0
+for key in all_keys:
+    df[key] = 0.0
+
+# Populate the new columns with percentages
+for i, demo_dict in enumerate(df_demographics):
+    for key, value in demo_dict.items():
+        df.at[i, key] = value
+
+# Drop the original demographic_distribution column (optional)
+df = df.drop(columns=['demographic_distribution','ad_archive_id','13-17 (female)', 'page_id'])
+# Save the cleaned dataset
+df.to_csv('Trump-Harris.csv', index=False)
