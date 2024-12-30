@@ -1,5 +1,16 @@
 # AD-Tech-Analytic-Project
-A key event of 2024 is the U.S. presidential election. This project focuses on analyzing how Donald Trump and Kamala Harris use advertising to win votes, exploring their strategies, actions, and effectiveness
+A key event of 2024 is the U.S. presidential election. This project focuses on analyzing how Donald Trump and Kamala Harris use advertising to win votes, exploring their strategies, actions, and effectiveness.
+
+
+Some Questions I Want to Explore Through This Analysis:
+- Can the spending by Trump and Harris on Facebook campaigns be considered efficient in terms of audience reach and impact?
+- How does their spending on Facebook ads compare to other political campaigns globally?
+- How do the strategies of Trump and Harris differ in appealing to various demographics (e.g., age groups, political leanings)?
+- Are there noticeable trends in the timing or messaging of their campaigns based on key political events?
+- What role did cultural or regional factors play in shaping their campaign strategies?
+- Are there data or patterns that suggest Facebook’s algorithms or policies may have favored one candidate over the other?
+- How does Facebook ensure neutrality and fairness when handling political campaigns, particularly those of high-profile candidates like Trump and Harris?
+
 
 HERE IS STEP BY STEP YOU SHOULD DO IF YOU WANT REDO THE PROJECT BY YOURSELF
 1. You read this file, the README.md
