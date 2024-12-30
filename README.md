@@ -15,6 +15,6 @@ Some Questions I Want to Explore Through This Analysis:
 HERE IS STEP BY STEP YOU SHOULD DO IF YOU WANT REDO THE PROJECT BY YOURSELF
 1. You read this file, the README.md
 2. Download 2 files, 'trump.csv' and 'harris.csv'
-3. Take a look at these files, try to clean the file so that u can do analytics with these files
+3. Take a look at these files, try to clean the file so that u can do analytics with these files (To get more details what's the data in column mean, you can take a look at: https://www.facebook.com/ads/library/api/?source=nav-header)
 4. What ever you can clean the data or not, you should go to the 'Trump-Harris.zip'. It's the file that i cleaned, if you wanna know how i clean and why i do that, read the comment i wrote in 'Trump-Harris.zip'
 5. 
